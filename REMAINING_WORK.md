@@ -1,46 +1,29 @@
 # Pocketwise Beta — Remaining Work Checklist
 
-Last reviewed: 2026-10-23
+Last reviewed: 2026-10-26
 
-Repository: https://github.com/arorasaatvik2510-cloud/Pocket  
-Current branch: `main`  
-App: Pocketwise — Expense Tracker Beta
+Repository: https://github.com/arorasaatvik2510-cloud/Pocket
+AppDeploy beta: https://pocketwise-expense-tracker-beta-gz9icz.v2.appdeploy.ai/
 
-## Current verified state
+## Verified state
 
-- [x] A single-page `index.html` app exists in the repository.
-- [x] `.github/workflows/deploy-pages.yml` exists and is triggered by changes to `index.html` or the workflow itself, with a manual dispatch option.
-- [x] Core local-only beta features are implemented: income/expense transactions, categories, current-month balance, monthly spending budget, month/type filters, currency display selection, delete one transaction, clear-all confirmation, browser-local persistence, and CSV export.
-- [x] The app visibly warns that data stays in this browser/device and is not backed up to a cloud account.
-- [ ] GitHub Pages deployment is not yet successful. The latest run stopped at **Configure GitHub Pages** because the Actions token was denied permission to create the Pages site (`Resource not accessible by integration`). The upload/deploy steps were skipped.
+- [x] Existing AppDeploy deployment is marked ready.
+- [x] AppDeploy source includes transaction entry, local persistence, ₹1,200 default budget, month/type filters, monthly history, in-app six-column ledger, XLSX workbook export and CSV export.
+- [x] GitHub repository is being synchronized to the current AppDeploy source and Vite build structure.
+- [x] Pages workflow builds the Vite production bundle and uploads `dist/`.
+- [x] The current beta is labeled local-only; it does not claim to have accounts or cloud sync.
 
-## P0 — Publish the existing beta
+## Remaining
 
-- [ ] Open repository Settings → Pages: https://github.com/arorasaatvik2510-cloud/Pocket/settings/pages
-- [ ] Under **Build and deployment**, set **Source** to **GitHub Actions** and save. The current workflow cannot create the Pages site with its present token, so perform this setting in repository Settings.
-- [ ] Re-run the workflow from Actions: https://github.com/arorasaatvik2510-cloud/Pocket/actions
-- [ ] Confirm both the build job and deploy job pass; confirm the GitHub Pages deployment environment contains a live URL.
-- [ ] Open the published site on desktop and a mobile viewport and confirm it loads quickly without missing assets or JavaScript errors.
+- [ ] Enable GitHub Pages once in repository Settings → Pages → Build and deployment → Source = **GitHub Actions**. The previous run stopped because the Pages site did not exist.
+- [ ] After enabling Pages, run the workflow and verify the published URL on desktop and mobile.
+- [ ] Real interactive browser tests are still needed for transaction creation/deletion, persistence, history, workbook and CSV downloads, mobile layout, and malformed local storage.
+- [ ] Cloud accounts, server-side backup and cross-device sync are not implemented. They need an authenticated backend and row-level access control before being advertised.
+- [ ] Commit a package lockfile after dependencies are finalized.
+- [ ] Check local-time handling for dates/monthly totals; the current app derives the current date/month from UTC ISO strings.
 
-## P1 — Reliability and repository handoff
+## Known limitations
 
-- [ ] Replace the minimal README with purpose, features, beta limitations, local run instructions, deployment instructions, backup warning, and the published URL after it is verified.
-- [ ] Add a small smoke-test checklist or automated browser test for transaction creation, income/expense totals, filters, individual deletion, CSV export, currency display, budget edits, and persistence after refresh.
-- [ ] Test fresh browser storage, malformed/missing stored data, empty transaction list, budget of zero, and long descriptions/notes.
-- [ ] Review local date handling: the current app derives the current date/month with ISO UTC strings; ensure displayed dates/month totals behave correctly in the user's local timezone.
-- [ ] Confirm CSV export works across supported browsers and that users understand they must keep their own backup.
-
-## P2 — Product decisions before a broader release
-
-- [ ] Decide whether this is intentionally a local-only tracker. If cloud sync/accounts are required, design and test an appropriate backend and privacy/security model before adding them.
-- [ ] Decide whether users need transaction editing and CSV/backup import; neither is currently exposed in the UI.
-- [ ] Clarify that the currency selector changes formatting only; the current app does not fetch exchange rates or convert entered amounts.
-- [ ] If installability is required, add and test a PWA manifest, app icons, and service-worker/offline behavior; do not claim PWA installation until verified.
-- [ ] Document data deletion, device/browser storage limits, and the consequence of clearing browser data.
-
-## Definition of done
-
-- [ ] GitHub Actions has a successful Pages deployment.
-- [ ] Published link is confirmed and smoke-tested on desktop and mobile.
-- [ ] README accurately describes the current local-only beta.
-- [ ] Known limitations are clearly disclosed; optional account/cloud features are not implied to exist.
+- The currency selector changes formatting only; it does not perform exchange-rate conversion.
+- Excel export creates a snapshot on demand; a previously downloaded workbook does not live-update.
+- Clearing browser/site storage can remove local records. Users should keep CSV/Excel backups.

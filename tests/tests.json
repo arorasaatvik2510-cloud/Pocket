@@ -1,0 +1,102 @@
+[
+  {
+    "name": "Add expense and watch the live ledger update",
+    "sanity": true,
+    "viewport": "desktop",
+    "covers": [
+      "expense record creation",
+      "form reset after submit",
+      "live ledger sheet refresh",
+      "localStorage persistence",
+      "continued button interactions"
+    ],
+    "description": "Verifies every saved transaction is reflected automatically in the six-column ledger view and remains after reload.",
+    "steps": [
+      "Open Pocketwise",
+      "Add an expense named Groceries with amount 250 and category Food",
+      "Open Ledger sheet",
+      "Verify a Groceries row shows Date, Type, Description, Category, Amount and Note",
+      "Close the ledger and refresh the app",
+      "Reopen Ledger sheet"
+    ],
+    "expected": "The Groceries row appears in the ledger without manual row entry and remains visible after refresh in the same browser."
+  },
+  {
+    "name": "Export a complete Excel workbook and CSV backup",
+    "viewport": "desktop",
+    "covers": [
+      "Excel workbook export",
+      "all six transaction columns",
+      "monthly budget summary",
+      "formula-driven Excel summary",
+      "CSV backup download",
+      "export completion feedback"
+    ],
+    "description": "Verifies saved transactions download into an Excel workbook and CSV backup.",
+    "steps": [
+      "Create an expense called Lunch for 180",
+      "Switch to Income and add Allowance for 1000",
+      "Select Export Excel",
+      "Verify a pocketwise-expense-ledger XLSX download starts",
+      "Verify feedback reports two transactions",
+      "Select Export CSV"
+    ],
+    "expected": "An Excel workbook downloads with Dashboard and Transactions sheets, the six transaction columns and a ₹1,200 budget summary; CSV export remains available."
+  },
+  {
+    "name": "Reject incomplete transaction entries on mobile",
+    "viewport": "mobile",
+    "covers": [
+      "required field validation",
+      "invalid write guardrail",
+      "responsive transaction form"
+    ],
+    "description": "Verifies browser validation prevents an incomplete transaction from being recorded.",
+    "steps": [
+      "Open Pocketwise on mobile",
+      "Leave Description empty and enter amount 250",
+      "Submit Add transaction",
+      "Inspect the transaction list"
+    ],
+    "expected": "Required-field validation blocks the incomplete transaction and no blank record appears."
+  },
+  {
+    "name": "Use the ₹1,200 monthly budget and retain the setting",
+    "viewport": "desktop",
+    "covers": [
+      "₹1,200 default monthly budget",
+      "budget setting persistence",
+      "monthly budget progress rendering"
+    ],
+    "description": "Verifies the requested budget is applied and remains saved.",
+    "steps": [
+      "Open the monthly budget card",
+      "Verify the default budget is ₹1,200",
+      "Refresh the page",
+      "Verify the budget still reads ₹1,200"
+    ],
+    "expected": "Pocketwise displays and retains the ₹1,200 monthly spending budget unless changed by the user."
+  },
+  {
+    "name": "Open monthly history and review the selected month",
+    "viewport": "mobile",
+    "covers": [
+      "monthly history popup",
+      "historical month selection",
+      "expense and income totals",
+      "category breakdown",
+      "budget remaining and over-budget status",
+      "accessible modal close"
+    ],
+    "description": "Verifies monthly history summarizes browser-local records and can be closed without deleting data.",
+    "steps": [
+      "Create an expense called Bus fare for 40 in the current month",
+      "Create an income called Allowance for 500 in the current month",
+      "Open Monthly history",
+      "Verify expenses of ₹40, income of ₹500 and a ₹1,200 budget",
+      "Verify Transport is shown as an expense category",
+      "Choose Done"
+    ],
+    "expected": "Monthly history shows the selected month’s totals, category breakdown and remaining budget; closing leaves records intact."
+  }
+]

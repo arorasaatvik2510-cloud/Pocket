@@ -1,50 +1,1310 @@
 <!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#101827">
-<title>Pocketwise — Expense Tracker Beta</title>
-<style>
-:root{--bg:#0b1220;--panel:#111c2e;--panel2:#17243a;--text:#edf3ff;--muted:#94a4bd;--line:#263750;--accent:#79e0c3;--red:#ff8b9a}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top right,#183b4a 0,transparent 35%),var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}.wrap{max-width:1120px;margin:auto;padding:24px 16px 48px}.top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:20px}.brand{display:flex;gap:12px;align-items:center}.logo{display:grid;place-items:center;width:46px;height:46px;border-radius:15px;background:var(--accent);color:#06251e;font-size:24px;font-weight:900}.brand h1{margin:0;font-size:24px}.brand p{margin:2px 0 0;color:var(--muted);font-size:13px}.controls,.subrow,.budgethead,.sectionhead,.filters,.foot,.form-actions,.typepick{display:flex;gap:10px;align-items:center;flex-wrap:wrap}button,select,input{font:inherit;color:inherit}button,select{border:1px solid var(--line);background:var(--panel2);border-radius:10px;padding:10px 12px;cursor:pointer}button.primary{background:var(--accent);border-color:var(--accent);color:#07261f;font-weight:800}input,select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:#0b1526}button:hover{filter:brightness(1.08)}.hero{display:grid;grid-template-columns:1.5fr 1fr;gap:14px;margin-bottom:14px}.grid{display:grid;grid-template-columns:1fr 1.15fr;gap:14px}.card{background:linear-gradient(145deg,rgba(23,36,58,.97),rgba(14,24,40,.97));border:1px solid var(--line);border-radius:18px;padding:20px;min-width:0}.eyebrow,.field label{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.7px;font-weight:700}.big{font-size:clamp(30px,5vw,43px);font-weight:800;margin:8px 0}.smallstat span{display:block;color:var(--muted);font-size:12px}.smallstat strong{font-size:16px}.bar{height:9px;background:#263750;border-radius:99px;overflow:hidden;margin:16px 0}.bar span{display:block;height:100%;width:0;background:var(--accent)}.muted{color:var(--muted);font-size:13px}.sectionhead{justify-content:space-between;margin-bottom:14px}.sectionhead h2{margin:0;font-size:17px}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}.field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}.typepick button,.form-actions button{flex:1}.typepick .selected{border-color:var(--accent);color:var(--accent)}.list{display:flex;flex-direction:column;gap:8px}.tx{display:flex;align-items:center;gap:10px;padding:11px;background:#0c1728;border:1px solid #22324a;border-radius:12px}.bubble{width:38px;height:38px;display:grid;place-items:center;background:#20334a;border-radius:11px}.txmain{flex:1;min-width:0}.txmain strong{display:block;overflow-wrap:anywhere}.txmain small{color:var(--muted)}.amount{font-weight:800;white-space:nowrap}.income{color:var(--accent)}.expense{color:var(--red)}.del{padding:6px 8px;border:0;background:transparent;color:var(--muted)}.empty{text-align:center;padding:24px 10px;color:var(--muted)}.foot{justify-content:space-between;margin-top:12px}.notice{border:1px solid #554b2d;background:#2a2619;color:#f4dca3;padding:12px 14px;border-radius:12px;font-size:13px;margin-bottom:14px}.pill{border-radius:99px;padding:5px 9px;background:#20334a;color:var(--muted);font-size:12px}
-@media(max-width:760px){.hero,.grid{grid-template-columns:1fr}.wrap{padding:18px 12px 34px}.card{padding:16px}.formgrid{grid-template-columns:1fr}.filters{width:100%}.top{align-items:flex-start}}
-</style></head>
-<body><main class="wrap">
-<header class="top"><div class="brand"><div class="logo">↗</div><div><h1>Pocketwise</h1><p>Your money, made clearer · Beta</p></div></div><div class="controls"><select id="currency" aria-label="Currency"><option value="INR">₹ INR</option><option value="USD">$ USD</option><option value="EUR">€ EUR</option><option value="GBP">£ GBP</option></select><button id="export">Export CSV ↓</button></div></header>
-<div class="notice"><strong>Beta preview · Local storage only.</strong> Entries stay in this browser on this device. There is no account login, cloud database, or cross-device sync yet. Export a CSV backup regularly.</div>
-<section class="hero"><div class="card"><div class="eyebrow">Net balance · this month</div><div class="big" id="balance">₹0</div><div class="subrow"><div class="smallstat"><span>Income</span><strong id="income">₹0</strong></div><div class="smallstat"><span>Expenses</span><strong id="expenses">₹0</strong></div><div class="smallstat"><span>Transactions</span><strong id="count">0</strong></div></div></div><div class="card"><div class="budgethead"><div><div class="eyebrow">Monthly spending budget</div><strong id="budgetLabel">₹20,000</strong></div><button id="editBudget">Edit</button></div><div class="bar"><span id="budgetBar"></span></div><div class="muted" id="budgetHint">Set a budget to track spending.</div></div></section>
-<section class="grid"><div class="card"><div class="sectionhead"><h2>Add transaction</h2><span class="pill">Quick entry</span></div><div class="typepick"><button id="expenseType" class="selected" type="button">− Expense</button><button id="incomeType" type="button">＋ Income</button></div><form id="txForm"><div class="formgrid"><div class="field full"><label for="title">Description</label><input id="title" placeholder="e.g. Groceries, pocket money" maxlength="90" required></div><div class="field"><label for="amountInput">Amount</label><input id="amountInput" type="number" min=".01" step=".01" placeholder="0.00" required></div><div class="field"><label for="category">Category</label><select id="category"><option>Food</option><option>Transport</option><option>Shopping</option><option>Bills</option><option>Education</option><option>Health</option><option>Entertainment</option><option>Salary</option><option>Allowance</option><option>Other</option></select></div><div class="field"><label for="date">Date</label><input id="date" type="date" required></div><div class="field"><label for="note">Note (optional)</label><input id="note" placeholder="Short note" maxlength="120"></div></div><div class="form-actions" style="margin-top:14px"><button class="primary" type="submit">Add transaction</button><button type="reset" id="reset">Clear</button></div></form></div>
-<div class="card"><div class="sectionhead"><h2>Transactions</h2><div class="filters"><select id="monthFilter" aria-label="Filter month"><option value="all">All months</option></select><select id="typeFilter" aria-label="Filter type"><option value="all">All types</option><option value="expense">Expenses</option><option value="income">Income</option></select></div></div><div id="list" class="list"></div><div class="foot"><span class="muted" id="showing">0 transactions</span><button id="clearAll" class="del">Clear all data</button></div></div></section>
-<p class="muted" style="text-align:center;margin-top:24px">Pocketwise · Browser-local beta · No cloud sync</p></main>
-<script>
-const $=id=>document.getElementById(id);
-let transactions=JSON.parse(localStorage.getItem('pocketwise.transactions.v1')||'[]');
-let currency=localStorage.getItem('pocketwise.currency.v1')||'INR';
-let budget=Number(localStorage.getItem('pocketwise.budget.v1')||20000),type='expense';
-$('currency').value=currency;$('date').value=new Date().toISOString().slice(0,10);
-const icons={Food:'🍜',Transport:'🚆',Shopping:'🛍️',Bills:'🧾',Education:'📚',Health:'🩺',Entertainment:'🎧',Salary:'💼',Allowance:'💸',Other:'📌'};
-function money(n){return new Intl.NumberFormat('en-IN',{style:'currency',currency:currency,maximumFractionDigits:2}).format(n||0)}
-function persist(){localStorage.setItem('pocketwise.transactions.v1',JSON.stringify(transactions));localStorage.setItem('pocketwise.currency.v1',currency);localStorage.setItem('pocketwise.budget.v1',String(budget))}
-function setType(t){type=t;$('expenseType').classList.toggle('selected',t==='expense');$('incomeType').classList.toggle('selected',t==='income')}
-$('expenseType').onclick=()=>setType('expense');$('incomeType').onclick=()=>setType('income');
-function monthKey(d){return (d||'').slice(0,7)}
-function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function render(){
- const now=new Date().toISOString().slice(0,7),current=transactions.filter(t=>monthKey(t.date)===now);
- const inc=current.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0),exp=current.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
- $('balance').textContent=money(inc-exp);$('income').textContent=money(inc);$('expenses').textContent=money(exp);$('count').textContent=current.length;
- $('budgetLabel').textContent=money(budget);let pct=budget>0?Math.min(100,exp/budget*100):0;$('budgetBar').style.width=pct+'%';$('budgetBar').style.background=pct>=100?'var(--red)':'var(--accent)';$('budgetHint').textContent=money(Math.max(0,budget-exp))+' remaining · '+Math.round(pct)+'% used';
- const months=Array.from(new Set(transactions.map(t=>monthKey(t.date)).filter(Boolean))).sort().reverse(),mf=$('monthFilter'),prev=mf.value;
- mf.innerHTML='<option value="all">All months</option>'+months.map(m=>'<option value="'+m+'">'+m+'</option>').join('');if(months.includes(prev)||prev==='all')mf.value=prev;
- const visible=transactions.filter(t=>(mf.value==='all'||monthKey(t.date)===mf.value)&&($('typeFilter').value==='all'||t.type===$('typeFilter').value)).sort((a,b)=>b.date.localeCompare(a.date)||b.created-a.created);
- $('list').innerHTML=visible.length?visible.map(t=>'<div class="tx"><div class="bubble">'+(icons[t.category]||'📌')+'</div><div class="txmain"><strong>'+esc(t.title)+'</strong><small>'+esc(t.category)+' · '+t.date+(t.note?' · '+esc(t.note):'')+'</small></div><div class="amount '+t.type+'">'+(t.type==='income'?'+':'−')+money(t.amount)+'</div><button class="del" title="Delete transaction" aria-label="Delete transaction" data-delete="'+t.id+'">✕</button></div>').join(''):'<div class="empty">No transactions yet.<br>Add your first entry to get started.</div>';
- $('showing').textContent=visible.length+' transaction'+(visible.length===1?'':'s');document.querySelectorAll('[data-delete]').forEach(b=>b.onclick=()=>{transactions=transactions.filter(t=>t.id!==b.dataset.delete);persist();render()});
-}
-$('txForm').onsubmit=e=>{e.preventDefault();const amount=Number($('amountInput').value);if(!Number.isFinite(amount)||amount<=0)return;transactions.push({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),title:$('title').value.trim(),amount:amount,type:type,category:$('category').value,date:$('date').value,note:$('note').value.trim(),created:Date.now()});persist();$('txForm').reset();$('date').value=new Date().toISOString().slice(0,10);setType('expense');render()};
-$('currency').onchange=e=>{currency=e.target.value;persist();render()};
-$('editBudget').onclick=()=>{const v=prompt('Set your monthly expense budget:',String(budget));if(v===null)return;const n=Number(v);if(Number.isFinite(n)&&n>=0){budget=n;persist();render()}};
-$('monthFilter').onchange=render;$('typeFilter').onchange=render;
-$('clearAll').onclick=()=>{if(confirm('Delete every saved transaction from this browser? This cannot be undone.')){transactions=[];persist();render()}};
-$('export').onclick=()=>{const rows=[['Date','Type','Description','Category','Amount','Note'],...transactions.map(t=>[t.date,t.type,t.title,t.category,t.amount,t.note])];const csv=rows.map(r=>r.map(v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"').join(',')).join('\r\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));a.download='pocketwise-transactions.csv';a.click();URL.revokeObjectURL(a.href)};
-render();
-</script></body></html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pocketwise Expense Tracker Beta</title>
+    <link rel="stylesheet" href="./src/styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <style>
+        :root {
+          --bg: #090807;
+          --panel: #17120e;
+          --panel2: #251b13;
+          --text: #f4eee4;
+          --muted: #b4a38e;
+          --line: #493624;
+          --accent: #d9b56e;
+          --red: #d88673;
+        }
+        * {
+          box-sizing: border-box;
+        }
+        body {
+          margin: 0;
+          background:
+            radial-gradient(ellipse at top right, #4b321f 0, transparent 38%),
+            var(--bg);
+          color: var(--text);
+          font:
+            15px/1.45 system-ui,
+            -apple-system,
+            Segoe UI,
+            Roboto,
+            sans-serif;
+        }
+        .wrap {
+          max-width: 1120px;
+          margin: auto;
+          padding: 24px 16px 48px;
+        }
+        .top {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 16px;
+          flex-wrap: wrap;
+          margin-bottom: 20px;
+        }
+        .brand {
+          display: flex;
+          gap: 12px;
+          align-items: center;
+        }
+        .logo {
+          display: grid;
+          place-items: center;
+          width: 46px;
+          height: 46px;
+          border-radius: 15px;
+          background: var(--accent);
+          color: #21170a;
+          font-size: 24px;
+          font-weight: 900;
+        }
+        .brand h1 {
+          margin: 0;
+          font-size: 24px;
+        }
+        .brand p {
+          margin: 2px 0 0;
+          color: var(--muted);
+          font-size: 13px;
+        }
+        .controls,
+        .subrow,
+        .budgethead,
+        .sectionhead,
+        .filters,
+        .foot,
+        .form-actions,
+        .typepick {
+          display: flex;
+          gap: 10px;
+          align-items: center;
+          flex-wrap: wrap;
+        }
+        button,
+        select,
+        input {
+          font: inherit;
+          color: inherit;
+        }
+        button,
+        select {
+          border: 1px solid var(--line);
+          background: var(--panel2);
+          border-radius: 10px;
+          padding: 10px 12px;
+          cursor: pointer;
+        }
+        button.primary {
+          background: var(--accent);
+          border-color: var(--accent);
+          color: #21170a;
+          font-weight: 800;
+        }
+        input,
+        select {
+          width: 100%;
+          padding: 10px 12px;
+          border-radius: 10px;
+          border: 1px solid var(--line);
+          background: #100d0a;
+        }
+        button:hover {
+          filter: brightness(1.08);
+        }
+        .hero {
+          display: grid;
+          grid-template-columns: 1.5fr 1fr;
+          gap: 14px;
+          margin-bottom: 14px;
+        }
+        .grid {
+          display: grid;
+          grid-template-columns: 1fr 1.15fr;
+          gap: 14px;
+        }
+        .card {
+          background: linear-gradient(
+            145deg,
+            rgba(35, 26, 18, 0.98),
+            rgba(15, 13, 11, 0.98)
+          );
+          border: 1px solid var(--line);
+          border-radius: 18px;
+          padding: 20px;
+          min-width: 0;
+        }
+        .eyebrow,
+        .field label {
+          color: var(--muted);
+          font-size: 12px;
+          text-transform: uppercase;
+          letter-spacing: 0.7px;
+          font-weight: 700;
+        }
+        .big {
+          font-size: clamp(30px, 5vw, 43px);
+          font-weight: 800;
+          margin: 8px 0;
+        }
+        .smallstat span {
+          display: block;
+          color: var(--muted);
+          font-size: 12px;
+        }
+        .smallstat strong {
+          font-size: 16px;
+        }
+        .bar {
+          height: 9px;
+          background: #403021;
+          border-radius: 99px;
+          overflow: hidden;
+          margin: 16px 0;
+        }
+        .bar span {
+          display: block;
+          height: 100%;
+          width: 0;
+          background: var(--accent);
+        }
+        .muted {
+          color: var(--muted);
+          font-size: 13px;
+        }
+        .sectionhead {
+          justify-content: space-between;
+          margin-bottom: 14px;
+        }
+        .sectionhead h2 {
+          margin: 0;
+          font-size: 17px;
+        }
+        .formgrid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 12px;
+          margin-top: 12px;
+        }
+        .field {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+        .field.full {
+          grid-column: 1/-1;
+        }
+        .typepick button,
+        .form-actions button {
+          flex: 1;
+        }
+        .typepick .selected {
+          border-color: var(--accent);
+          color: var(--accent);
+        }
+        .list {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+        .tx {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 11px;
+          background: #120e0a;
+          border: 1px solid #3f2d1d;
+          border-radius: 12px;
+        }
+        .bubble {
+          width: 38px;
+          height: 38px;
+          display: grid;
+          place-items: center;
+          background: #3a2a1b;
+          border-radius: 11px;
+        }
+        .txmain {
+          flex: 1;
+          min-width: 0;
+        }
+        .txmain strong {
+          display: block;
+          overflow-wrap: anywhere;
+        }
+        .txmain small {
+          color: var(--muted);
+        }
+        .amount {
+          font-weight: 800;
+          white-space: nowrap;
+        }
+        .income {
+          color: var(--accent);
+        }
+        .expense {
+          color: var(--red);
+        }
+        .del {
+          padding: 6px 8px;
+          border: 0;
+          background: transparent;
+          color: var(--muted);
+        }
+        .empty {
+          text-align: center;
+          padding: 24px 10px;
+          color: var(--muted);
+        }
+        .foot {
+          justify-content: space-between;
+          margin-top: 12px;
+        }
+        .notice {
+          border: 1px solid #554b2d;
+          background: #2a2619;
+          color: #f4dca3;
+          padding: 12px 14px;
+          border-radius: 12px;
+          font-size: 13px;
+          margin-bottom: 14px;
+        }
+        .pill {
+          border-radius: 99px;
+          padding: 5px 9px;
+          background: #3a2a1b;
+          color: var(--muted);
+          font-size: 12px;
+        }
+        .modal-backdrop {
+          position: fixed;
+          z-index: 1000;
+          inset: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 18px;
+          background: rgba(0, 0, 0, 0.78);
+          backdrop-filter: blur(9px);
+        }
+        .modal-backdrop[hidden] { display: none; }
+        .history-dialog {
+          width: min(960px, 100%);
+          max-height: min(88vh, 900px);
+          overflow: auto;
+          border: 1px solid #5a432b;
+          border-radius: 19px;
+          padding: clamp(18px, 3vw, 28px);
+          background:
+            radial-gradient(ellipse at top right, #4a2d1930, transparent 44%),
+            linear-gradient(145deg, #17110c, #0b0907 72%);
+          color: var(--text);
+          box-shadow: 0 24px 90px #0000009c, inset 0 1px 0 #e4c57915;
+        }
+        .history-dialog-head,
+        .history-month-row,
+        .history-budget-head,
+        .history-panel-head,
+        .history-footer {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 14px;
+        }
+        .history-dialog-head { align-items: flex-start; margin-bottom: 19px; }
+        .history-eyebrow {
+          color: #d9b56e;
+          font: 9px ui-monospace, SFMono-Regular, Menlo, monospace;
+          letter-spacing: 1.5px;
+        }
+        .history-dialog h2 {
+          margin: 8px 0 4px;
+          font-size: clamp(23px, 4vw, 32px);
+          letter-spacing: -0.7px;
+        }
+        .history-dialog-head p {
+          margin: 0;
+          color: #b4a38e;
+          font-size: 12px;
+          line-height: 1.6;
+        }
+        .history-close {
+          flex: 0 0 38px;
+          width: 38px;
+          height: 38px;
+          padding: 0;
+          border: 1px solid #4a3826;
+          border-radius: 11px;
+          background: #20170f;
+          color: #f2d9a4;
+          font-size: 25px;
+          line-height: 1;
+        }
+        .history-month-row {
+          justify-content: flex-start;
+          padding: 12px 0 18px;
+          border-top: 1px solid #392a1c;
+        }
+        .history-month-row label {
+          color: #c9b79f;
+          font-size: 11px;
+          font-weight: 700;
+          white-space: nowrap;
+        }
+        .history-month-row select { max-width: 230px; }
+        .history-summary {
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 10px;
+        }
+        .history-metric {
+          min-width: 0;
+          padding: 15px;
+          border: 1px solid #443221;
+          border-radius: 12px;
+          background: linear-gradient(145deg, #21170f, #11100d);
+        }
+        .history-metric span {
+          display: block;
+          margin-bottom: 9px;
+          color: #b5a18a;
+          font-size: 10px;
+          letter-spacing: .25px;
+        }
+        .history-metric strong {
+          display: block;
+          color: #f3e6cf;
+          font-size: clamp(16px, 2.5vw, 23px);
+          overflow-wrap: anywhere;
+        }
+        .history-metric.spent strong { color: #e5bd70; }
+        .history-metric.income strong { color: #b6c9a2; }
+        .history-metric.over strong { color: #e08b76; }
+        .history-budget {
+          margin: 13px 0 17px;
+          padding: 16px;
+          border: 1px solid #4b3825;
+          border-radius: 12px;
+          background: #18120d;
+        }
+        .history-budget-head {
+          color: #d3c1a8;
+          font-size: 11px;
+        }
+        .history-budget-head strong { color: #f0d18f; font-size: 12px; }
+        .history-progress {
+          height: 9px;
+          margin: 12px 0 8px;
+          overflow: hidden;
+          border-radius: 99px;
+          background: #3c2c1e;
+        }
+        .history-progress span {
+          display: block;
+          width: 0;
+          height: 100%;
+          border-radius: inherit;
+          background: linear-gradient(90deg, #9b713b, #e8c979);
+          transition: width .25s ease;
+        }
+        .history-progress span.over-budget {
+          background: linear-gradient(90deg, #b7664e, #e19a7c);
+        }
+        .history-budget p { margin: 0; color: #aa9984; font-size: 10px; }
+        .history-columns {
+          display: grid;
+          grid-template-columns: .85fr 1.15fr;
+          gap: 12px;
+        }
+        .history-panel {
+          min-width: 0;
+          padding: 16px;
+          border: 1px solid #382a1d;
+          border-radius: 13px;
+          background: #100d0a;
+        }
+        .history-panel-head { margin-bottom: 14px; }
+        .history-panel-head h3 { margin: 0; color: #f0e3cf; font-size: 13px; }
+        .history-panel-head > span {
+          color: #b99862;
+          font: 8px ui-monospace, SFMono-Regular, Menlo, monospace;
+          letter-spacing: .7px;
+        }
+        .history-category-list,
+        .history-transaction-list { display: flex; flex-direction: column; gap: 10px; }
+        .history-category { display: grid; gap: 6px; }
+        .history-category-label {
+          display: flex;
+          justify-content: space-between;
+          gap: 10px;
+          color: #c8b79f;
+          font-size: 10px;
+        }
+        .history-category-label strong { color: #efdfc4; font-size: 10px; }
+        .history-category-track {
+          height: 5px;
+          border-radius: 99px;
+          overflow: hidden;
+          background: #362719;
+        }
+        .history-category-track span {
+          display: block;
+          height: 100%;
+          border-radius: inherit;
+          background: linear-gradient(90deg, #8f6432, #dbb76e);
+        }
+        .history-entry {
+          display: flex;
+          align-items: center;
+          gap: 9px;
+          padding: 9px 0;
+          border-bottom: 1px solid #2e2218;
+        }
+        .history-entry:last-child { border-bottom: 0; }
+        .history-entry-icon {
+          display: grid;
+          place-items: center;
+          flex: 0 0 31px;
+          width: 31px;
+          height: 31px;
+          border: 1px solid #44311f;
+          border-radius: 9px;
+          background: #251a10;
+          font-size: 14px;
+        }
+        .history-entry-main { flex: 1; min-width: 0; }
+        .history-entry-main strong {
+          display: block;
+          color: #e9ddcb;
+          font-size: 10px;
+          overflow-wrap: anywhere;
+        }
+        .history-entry-main small { display: block; margin-top: 3px; color: #978873; font-size: 9px; }
+        .history-entry-amount {
+          color: #e4bd74;
+          font-size: 10px;
+          font-weight: 800;
+          white-space: nowrap;
+        }
+        .history-entry-amount.income { color: #b4c99c; }
+        .history-empty {
+          padding: 19px 8px;
+          border: 1px dashed #4a3825;
+          border-radius: 10px;
+          color: #a89781;
+          font-size: 11px;
+          line-height: 1.7;
+          text-align: center;
+        }
+        .history-footer {
+          padding-top: 17px;
+          margin-top: 17px;
+          border-top: 1px solid #392a1c;
+        }
+        .history-footer span { color: #968670; font-size: 9px; }
+        .history-footer .primary { min-width: 90px; }
+        .ledger-dialog { width: min(1180px, 100%); }
+        .ledger-summary-bar {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          flex-wrap: wrap;
+          gap: 12px;
+          margin: 12px 0;
+          padding: 12px 14px;
+          border: 1px solid #453220;
+          border-radius: 10px;
+          background: #1b140d;
+          color: #d9bd88;
+          font-size: 11px;
+        }
+        .ledger-summary-bar .primary { width: auto; }
+        .ledger-table-wrap {
+          max-width: 100%;
+          overflow: auto;
+          border: 1px solid #443221;
+          border-radius: 11px;
+          background: #0f0d0a;
+        }
+        .ledger-table {
+          width: 100%;
+          min-width: 760px;
+          border-collapse: separate;
+          border-spacing: 0;
+          color: #e8ddca;
+          font-size: 11px;
+        }
+        .ledger-table th {
+          position: sticky;
+          top: 0;
+          z-index: 1;
+          padding: 12px 11px;
+          background: #2a1d12;
+          color: #e1c27f;
+          text-align: left;
+          font: 9px ui-monospace, SFMono-Regular, Menlo, monospace;
+          letter-spacing: .5px;
+          text-transform: uppercase;
+          white-space: nowrap;
+          border-bottom: 1px solid #5a4028;
+        }
+        .ledger-table td {
+          padding: 11px;
+          border-bottom: 1px solid #2e2319;
+          vertical-align: top;
+          white-space: normal;
+          overflow-wrap: anywhere;
+        }
+        .ledger-table tr:last-child td { border-bottom: 0; }
+        .ledger-table tbody tr:hover td { background: #20170f; }
+        .ledger-table .ledger-amount {
+          color: #e4bf78;
+          font-weight: 800;
+          white-space: nowrap;
+          text-align: right;
+        }
+        .ledger-table .ledger-income { color: #b7c99e; }
+        .ledger-type {
+          display: inline-block;
+          padding: 4px 7px;
+          border: 1px solid #5a4028;
+          border-radius: 6px;
+          background: #251a10;
+          color: #e5c886;
+          font-size: 9px;
+          text-transform: uppercase;
+        }
+        .ledger-empty {
+          padding: 32px 16px !important;
+          color: #a89781;
+          text-align: center;
+          line-height: 1.7;
+        }
+        @media (max-width: 760px) {
+          .hero,
+          .grid {
+            grid-template-columns: 1fr;
+          }
+          .wrap {
+            padding: 18px 12px 34px;
+          }
+          .card {
+            padding: 16px;
+          }
+          .formgrid {
+            grid-template-columns: 1fr;
+          }
+          .filters {
+            width: 100%;
+          }
+          .top {
+            align-items: flex-start;
+          }
+        }
+      </style>
+      <main class="wrap">
+        <header class="top">
+          <div class="brand">
+            <div class="logo">↗</div>
+            <div>
+              <h1>Pocketwise</h1>
+              <p>Your money, made clearer · Beta</p>
+            </div>
+          </div>
+          <div class="controls">
+            <select id="currency" aria-label="Currency">
+              <option value="INR">₹ INR</option>
+              <option value="USD">$ USD</option>
+              <option value="EUR">€ EUR</option>
+              <option value="GBP">£ GBP</option></select
+            ><button id="historyButton" type="button" aria-haspopup="dialog">Monthly history ↗</button><button id="ledgerSheetButton" type="button" aria-haspopup="dialog">Ledger sheet ↗</button><button id="exportExcel" type="button">Export Excel ↗</button><button id="export" type="button">Export CSV ↓</button><span id="exportStatus" class="muted" role="status" aria-live="polite"></span>
+          </div>
+        </header>
+        <div class="notice">
+          <strong>Beta preview · Local storage only.</strong> Entries stay in
+          this browser on this device. There is no account login, cloud
+          database, or cross-device sync yet. Export a CSV backup regularly.
+        </div>
+        <section class="hero">
+          <div class="card">
+            <div class="eyebrow">Net balance · this month</div>
+            <div class="big" id="balance">₹0</div>
+            <div class="subrow">
+              <div class="smallstat">
+                <span>Income</span><strong id="income">₹0</strong>
+              </div>
+              <div class="smallstat">
+                <span>Expenses</span><strong id="expenses">₹0</strong>
+              </div>
+              <div class="smallstat">
+                <span>Transactions</span><strong id="count">0</strong>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="budgethead">
+              <div>
+                <div class="eyebrow">Monthly spending budget</div>
+                <strong id="budgetLabel">₹1,200</strong>
+              </div>
+              <button id="editBudget">Edit</button>
+            </div>
+            <div class="bar"><span id="budgetBar"></span></div>
+            <div class="muted" id="budgetHint">
+              Set a budget to track spending.
+            </div>
+          </div>
+        </section>
+        <section class="grid">
+          <div class="card">
+            <div class="sectionhead">
+              <h2>Add transaction</h2>
+              <span class="pill">Quick entry</span>
+            </div>
+            <div class="typepick">
+              <button id="expenseType" class="selected" type="button">
+                − Expense</button
+              ><button id="incomeType" type="button">＋ Income</button>
+            </div>
+            <form id="txForm">
+              <div class="formgrid">
+                <div class="field full">
+                  <label for="title">Description</label
+                  ><input
+                    id="title"
+                    placeholder="e.g. Groceries, pocket money"
+                    maxlength="90"
+                    required
+                  />
+                </div>
+                <div class="field">
+                  <label for="amountInput">Amount</label
+                  ><input
+                    id="amountInput"
+                    type="number"
+                    min=".01"
+                    step=".01"
+                    placeholder="0.00"
+                    required
+                  />
+                </div>
+                <div class="field">
+                  <label for="category">Category</label
+                  ><select id="category">
+                    <option>Food</option>
+                    <option>Transport</option>
+                    <option>Shopping</option>
+                    <option>Bills</option>
+                    <option>Education</option>
+                    <option>Health</option>
+                    <option>Entertainment</option>
+                    <option>Salary</option>
+                    <option>Allowance</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="date">Date</label
+                  ><input id="date" type="date" required />
+                </div>
+                <div class="field">
+                  <label for="note">Note (optional)</label
+                  ><input id="note" placeholder="Short note" maxlength="120" />
+                </div>
+              </div>
+              <div class="form-actions" style="margin-top: 14px">
+                <button class="primary" type="submit">Add transaction</button
+                ><button type="reset" id="clearEntry">Clear</button>
+              </div>
+            </form>
+          </div>
+          <div class="card">
+            <div class="sectionhead">
+              <h2>Transactions</h2>
+              <div class="filters">
+                <select id="monthFilter" aria-label="Filter month">
+                  <option value="all">All months</option></select
+                ><select id="typeFilter" aria-label="Filter type">
+                  <option value="all">All types</option>
+                  <option value="expense">Expenses</option>
+                  <option value="income">Income</option>
+                </select>
+              </div>
+            </div>
+            <div id="list" class="list"></div>
+            <div class="foot">
+              <span class="muted" id="showing">0 transactions</span
+              ><button id="clearAll" class="del">Clear all data</button>
+            </div>
+          </div>
+        </section>
+        <p class="muted" style="text-align: center; margin-top: 24px">
+          Pocketwise · Browser-local beta · No cloud sync
+        </p>
+      </main>
+      <div id="historyModal" class="modal-backdrop" hidden>
+        <section class="history-dialog" role="dialog" aria-modal="true" aria-labelledby="historyTitle">
+          <div class="history-dialog-head">
+            <div>
+              <div class="history-eyebrow">POCKETWISE / MONTHLY REPORT</div>
+              <h2 id="historyTitle">Expense history</h2>
+              <p>Monthly spending, income and budget status from your saved entries.</p>
+            </div>
+            <button id="historyClose" class="history-close" type="button" aria-label="Close monthly history">×</button>
+          </div>
+          <div class="history-month-row">
+            <label for="historyMonth">Reporting month</label>
+            <select id="historyMonth" aria-label="Choose history month"></select>
+          </div>
+          <div id="historySummary" class="history-summary"></div>
+          <div class="history-budget">
+            <div class="history-budget-head">
+              <span>Budget usage</span>
+              <strong id="historyUsageLabel">₹0 of ₹1,200</strong>
+            </div>
+            <div class="history-progress"><span id="historyProgress"></span></div>
+            <p id="historyBudgetCaption">₹1,200 monthly budget</p>
+          </div>
+          <div class="history-columns">
+            <section class="history-panel">
+              <div class="history-panel-head">
+                <h3>Spend by category</h3>
+                <span>EXPENSES</span>
+              </div>
+              <div id="historyCategories" class="history-category-list"></div>
+            </section>
+            <section class="history-panel">
+              <div class="history-panel-head">
+                <h3>Transactions</h3>
+                <span id="historyTransactionCount">0 ENTRIES</span>
+              </div>
+              <div id="historyTransactions" class="history-transaction-list"></div>
+            </section>
+          </div>
+          <div class="history-footer">
+            <span>Based on records saved in this browser only.</span>
+            <button id="historyDone" class="primary" type="button">Done</button>
+          </div>
+        </section>
+      </div>
+      <div id="ledgerSheetModal" class="modal-backdrop" hidden>
+        <section class="history-dialog ledger-dialog" role="dialog" aria-modal="true" aria-labelledby="ledgerSheetTitle">
+          <div class="history-dialog-head">
+            <div>
+              <div class="history-eyebrow">POCKETWISE / LIVE LEDGER</div>
+              <h2 id="ledgerSheetTitle">Expense spreadsheet</h2>
+              <p>Every saved entry is listed here automatically. Export Excel to download the current workbook snapshot.</p>
+            </div>
+            <button id="ledgerSheetClose" class="history-close" type="button" aria-label="Close ledger sheet">×</button>
+          </div>
+          <div class="ledger-summary-bar">
+            <span id="ledgerRecordCount">0 records</span>
+            <button id="ledgerExportExcel" class="primary" type="button">Download Excel workbook ↓</button>
+          </div>
+          <div class="ledger-table-wrap">
+            <table class="ledger-table">
+              <thead>
+                <tr><th>Date</th><th>Type</th><th>Description</th><th>Category</th><th>Amount</th><th>Note</th></tr>
+              </thead>
+              <tbody id="ledgerSheetBody"></tbody>
+            </table>
+          </div>
+          <div class="history-footer">
+            <span>Browser-local ledger · ₹1,200 default monthly budget · no cloud sync</span>
+            <button id="ledgerSheetDone" class="primary" type="button">Done</button>
+          </div>
+        </section>
+      </div>
+      <script>
+        const $ = id => document.getElementById(id);
+        let transactions = JSON.parse(
+          localStorage.getItem('pocketwise.transactions.v1') || '[]'
+        );
+        let currency = localStorage.getItem('pocketwise.currency.v1') || 'INR';
+        const budgetMigrationKey = 'pocketwise.budget.initial1200.v1';
+        let budget = Number(
+            localStorage.getItem('pocketwise.budget.v1') || 1200
+          ),
+          type = 'expense';
+        if (localStorage.getItem(budgetMigrationKey) !== 'applied') {
+          budget = 1200;
+          localStorage.setItem('pocketwise.budget.v1', '1200');
+          localStorage.setItem(budgetMigrationKey, 'applied');
+        }
+        $('currency').value = currency;
+        $('date').value = new Date().toISOString().slice(0, 10);
+        const icons = {
+          Food: '🍜',
+          Transport: '🚆',
+          Shopping: '🛍️',
+          Bills: '🧾',
+          Education: '📚',
+          Health: '🩺',
+          Entertainment: '🎧',
+          Salary: '💼',
+          Allowance: '💸',
+          Other: '📌',
+        };
+        function money(n) {
+          return new Intl.NumberFormat('en-IN', {
+            style: 'currency',
+            currency: currency,
+            maximumFractionDigits: 2,
+          }).format(n || 0);
+        }
+        function persist() {
+          localStorage.setItem(
+            'pocketwise.transactions.v1',
+            JSON.stringify(transactions)
+          );
+          localStorage.setItem('pocketwise.currency.v1', currency);
+          localStorage.setItem('pocketwise.budget.v1', String(budget));
+        }
+        function setType(t) {
+          type = t;
+          $('expenseType').classList.toggle('selected', t === 'expense');
+          $('incomeType').classList.toggle('selected', t === 'income');
+        }
+        $('expenseType').onclick = () => setType('expense');
+        $('incomeType').onclick = () => setType('income');
+        function monthKey(d) {
+          return (d || '').slice(0, 7);
+        }
+        function esc(s) {
+          return String(s).replace(
+            /[&<>"']/g,
+            c =>
+              ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;',
+              })[c]
+          );
+        }
+        function renderLedgerSheet() {
+          const body = $('ledgerSheetBody');
+          if (!body) return;
+          const sorted = [...transactions].sort(
+            (a, b) => b.date.localeCompare(a.date) || b.created - a.created
+          );
+          $('ledgerRecordCount').textContent = sorted.length +
+            (sorted.length === 1 ? ' saved record' : ' saved records');
+          body.innerHTML = sorted.length
+            ? sorted.map(t => '<tr><td>' + esc(t.date || '') +
+                '</td><td><span class="ledger-type">' + esc(t.type || '') +
+                '</span></td><td>' + esc(t.title || '') +
+                '</td><td>' + esc(t.category || 'Other') +
+                '</td><td class="ledger-amount ' + (t.type === 'income' ? 'ledger-income' : '') +
+                '">' + (t.type === 'income' ? '+' : '−') + money(t.amount) +
+                '</td><td>' + esc(t.note || '—') + '</td></tr>'
+              ).join('')
+            : '<tr><td class="ledger-empty" colspan="6">Your spreadsheet is ready. Add a transaction and its Date, Type, Description, Category, Amount and Note will appear here automatically.</td></tr>';
+        }
+
+        function openLedgerSheet() {
+          renderLedgerSheet();
+          $('ledgerSheetModal').hidden = false;
+          document.body.style.overflow = 'hidden';
+          $('ledgerSheetClose').focus();
+        }
+
+        function closeLedgerSheet() {
+          $('ledgerSheetModal').hidden = true;
+          document.body.style.overflow = '';
+          $('ledgerSheetButton').focus();
+        }
+
+        function render() {
+          const now = new Date().toISOString().slice(0, 7),
+            current = transactions.filter(t => monthKey(t.date) === now);
+          const inc = current
+              .filter(t => t.type === 'income')
+              .reduce((s, t) => s + t.amount, 0),
+            exp = current
+              .filter(t => t.type === 'expense')
+              .reduce((s, t) => s + t.amount, 0);
+          $('balance').textContent = money(inc - exp);
+          $('income').textContent = money(inc);
+          $('expenses').textContent = money(exp);
+          $('count').textContent = current.length;
+          $('budgetLabel').textContent = money(budget);
+          let pct = budget > 0 ? Math.min(100, (exp / budget) * 100) : 0;
+          $('budgetBar').style.width = pct + '%';
+          $('budgetBar').style.background =
+            pct >= 100 ? 'var(--red)' : 'var(--accent)';
+          $('budgetHint').textContent =
+            money(Math.max(0, budget - exp)) +
+            ' remaining · ' +
+            Math.round(pct) +
+            '% used';
+          const months = Array.from(
+              new Set(transactions.map(t => monthKey(t.date)).filter(Boolean))
+            )
+              .sort()
+              .reverse(),
+            mf = $('monthFilter'),
+            prev = mf.value;
+          mf.innerHTML =
+            '<option value="all">All months</option>' +
+            months
+              .map(m => '<option value="' + m + '">' + m + '</option>')
+              .join('');
+          if (months.includes(prev) || prev === 'all') mf.value = prev;
+          const visible = transactions
+            .filter(
+              t =>
+                (mf.value === 'all' || monthKey(t.date) === mf.value) &&
+                ($('typeFilter').value === 'all' ||
+                  t.type === $('typeFilter').value)
+            )
+            .sort(
+              (a, b) => b.date.localeCompare(a.date) || b.created - a.created
+            );
+          $('list').innerHTML = visible.length
+            ? visible
+                .map(
+                  t =>
+                    '<div class="tx"><div class="bubble">' +
+                    (icons[t.category] || '📌') +
+                    '</div><div class="txmain"><strong>' +
+                    esc(t.title) +
+                    '</strong><small>' +
+                    esc(t.category) +
+                    ' · ' +
+                    t.date +
+                    (t.note ? ' · ' + esc(t.note) : '') +
+                    '</small></div><div class="amount ' +
+                    t.type +
+                    '">' +
+                    (t.type === 'income' ? '+' : '−') +
+                    money(t.amount) +
+                    '</div><button class="del" title="Delete transaction" aria-label="Delete transaction" data-delete="' +
+                    t.id +
+                    '">✕</button></div>'
+                )
+                .join('')
+            : '<div class="empty">No transactions yet.<br>Add your first entry to get started.</div>';
+          $('showing').textContent =
+            visible.length + ' transaction' + (visible.length === 1 ? '' : 's');
+          document.querySelectorAll('[data-delete]').forEach(
+            b =>
+              (b.onclick = () => {
+                transactions = transactions.filter(
+                  t => t.id !== b.dataset.delete
+                );
+                persist();
+                render();
+              })
+          );
+          renderLedgerSheet();
+        }
+        $('txForm').onsubmit = e => {
+          e.preventDefault();
+          const amount = Number($('amountInput').value);
+          if (!Number.isFinite(amount) || amount <= 0) return;
+          transactions.push({
+            id: crypto.randomUUID
+              ? crypto.randomUUID()
+              : String(Date.now() + Math.random()),
+            title: $('title').value.trim(),
+            amount: amount,
+            type: type,
+            category: $('category').value,
+            date: $('date').value,
+            note: $('note').value.trim(),
+            created: Date.now(),
+          });
+          persist();
+          HTMLFormElement.prototype.reset.call($('txForm'));
+          $('date').value = new Date().toISOString().slice(0, 10);
+          setType('expense');
+          render();
+        };
+        $('currency').onchange = e => {
+          currency = e.target.value;
+          persist();
+          render();
+        };
+        $('editBudget').onclick = () => {
+          const v = prompt('Set your monthly expense budget:', String(budget));
+          if (v === null) return;
+          const n = Number(v);
+          if (Number.isFinite(n) && n >= 0) {
+            budget = n;
+            persist();
+            render();
+          }
+        };
+        $('monthFilter').onchange = render;
+        $('typeFilter').onchange = render;
+        $('clearAll').onclick = () => {
+          if (
+            confirm(
+              'Delete every saved transaction from this browser? This cannot be undone.'
+            )
+          ) {
+            transactions = [];
+            persist();
+            render();
+          }
+        };
+        function csvCell(value) {
+          let text = String(value == null ? '' : value);
+          // Keep text fields safe when opened in common spreadsheet apps.
+          if (/^\s*[=+@]/.test(text)) text = "'" + text;
+          return '"' + text.replace(/"/g, '""') + '"';
+        }
+
+        $('exportExcel').onclick = () => {
+          const sheetJS = window.XLSX;
+          if (!sheetJS) {
+            $('exportStatus').textContent = 'Excel export is loading. Please try again.';
+            return;
+          }
+
+          const headers = ['Date', 'Type', 'Description', 'Category', 'Amount', 'Note'];
+          const ledgerRows = transactions.map(t => [
+            t.date ? new Date(t.date + 'T12:00:00') : '',
+            t.type || '',
+            t.title || '',
+            t.category || '',
+            Number(t.amount || 0),
+            t.note || ''
+          ]);
+          const ledger = sheetJS.utils.aoa_to_sheet([headers, ...ledgerRows]);
+          ledger['!cols'] = [
+            { wch: 15 }, { wch: 14 }, { wch: 30 },
+            { wch: 20 }, { wch: 16 }, { wch: 34 }
+          ];
+          ledger['!autofilter'] = { ref: 'A1:F' + Math.max(1, ledgerRows.length + 1) };
+          for (let r = 2; r <= ledgerRows.length + 1; r++) {
+            if (ledger['A' + r]) ledger['A' + r].z = 'dd-mmm-yyyy';
+            if (ledger['E' + r]) ledger['E' + r].z = '"₹"#,##0.00';
+          }
+
+          const nowKey = new Date().toISOString().slice(0, 7);
+          const monthEntries = transactions.filter(t => monthKey(t.date) === nowKey);
+          const monthExpenses = monthEntries
+            .filter(t => t.type === 'expense')
+            .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+          const monthIncome = monthEntries
+            .filter(t => t.type === 'income')
+            .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+          const summary = sheetJS.utils.aoa_to_sheet([
+            ['POCKETWISE EXPENSE LEDGER'],
+            ['Generated on', new Date()],
+            ['Reporting month', monthLabel(nowKey)],
+            ['Monthly budget (INR)', budget],
+            ['Current-month expenses (INR)', monthExpenses],
+            ['Current-month income (INR)', monthIncome],
+            ['Budget remaining (INR)', budget - monthExpenses],
+            ['Transactions in ledger', transactions.length],
+            ['Data source', 'Pocketwise entries saved in this browser'],
+            ['Sync note', 'Export again after adding transactions to refresh this Excel snapshot.']
+          ]);
+          summary['!cols'] = [{ wch: 34 }, { wch: 72 }];
+          ['B4', 'B5', 'B6', 'B7'].forEach(cell => {
+            if (summary[cell]) summary[cell].z = '"₹"#,##0.00';
+          });
+          if (summary.B2) summary.B2.z = 'dd-mmm-yyyy';
+
+          summary['B5'] = {
+            t: 'n',
+            v: monthExpenses,
+            f: 'SUMIFS(Transactions!$E$2:$E$10000,Transactions!$B$2:$B$10000,"expense",Transactions!$A$2:$A$10000,">="&DATE(YEAR(TODAY()),MONTH(TODAY()),1),Transactions!$A$2:$A$10000,"<"&EDATE(DATE(YEAR(TODAY()),MONTH(TODAY()),1),1))',
+            z: '"₹"#,##0.00'
+          };
+          summary['B6'] = {
+            t: 'n',
+            v: monthIncome,
+            f: 'SUMIFS(Transactions!$E$2:$E$10000,Transactions!$B$2:$B$10000,"income",Transactions!$A$2:$A$10000,">="&DATE(YEAR(TODAY()),MONTH(TODAY()),1),Transactions!$A$2:$A$10000,"<"&EDATE(DATE(YEAR(TODAY()),MONTH(TODAY()),1),1))',
+            z: '"₹"#,##0.00'
+          };
+          summary['B7'] = {
+            t: 'n',
+            v: budget - monthExpenses,
+            f: 'B4-B5',
+            z: '"₹"#,##0.00'
+          };
+          summary['B8'] = {
+            t: 'n',
+            v: transactions.length,
+            f: 'COUNTA(Transactions!$A:$A)-1',
+            z: '0'
+          };
+
+          const workbook = sheetJS.utils.book_new();
+          sheetJS.utils.book_append_sheet(workbook, summary, 'Dashboard');
+          sheetJS.utils.book_append_sheet(workbook, ledger, 'Transactions');
+          workbook.Workbook = workbook.Workbook || {};
+          workbook.Workbook.Views = [{ RTL: false }];
+          const bytes = sheetJS.write(workbook, { bookType: 'xlsx', type: 'array' });
+          const blob = new Blob([bytes], {
+            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+          });
+          const url = URL.createObjectURL(blob);
+          const anchor = document.createElement('a');
+          const stamp = new Date().toISOString().slice(0, 10);
+          anchor.href = url;
+          anchor.download = 'pocketwise-expense-ledger-' + stamp + '.xlsx';
+          anchor.style.display = 'none';
+          document.body.appendChild(anchor);
+          anchor.click();
+          anchor.remove();
+          window.setTimeout(() => URL.revokeObjectURL(url), 1500);
+          $('exportStatus').textContent = 'Excel workbook exported with ' +
+            transactions.length + (transactions.length === 1 ? ' transaction.' : ' transactions.');
+        };
+
+        $('export').onclick = () => {
+          const rows = [
+            ['Date', 'Type', 'Description', 'Category', 'Amount', 'Note'],
+            ...transactions.map(t => [
+              t.date,
+              t.type,
+              t.title,
+              t.category,
+              t.amount,
+              t.note,
+            ]),
+          ];
+          const csv = '\uFEFF' + rows
+            .map(row => row.map(csvCell).join(','))
+            .join('\r\n');
+          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          const dateStamp = new Date().toISOString().slice(0, 10);
+          a.href = url;
+          a.download = 'pocketwise-transactions-backup-' + dateStamp + '.csv';
+          a.style.display = 'none';
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          window.setTimeout(() => URL.revokeObjectURL(url), 1500);
+          $('exportStatus').textContent = transactions.length +
+            (transactions.length === 1
+              ? ' transaction exported.'
+              : ' transactions exported.');
+        };
+        function monthLabel(key) {
+          if (!key) return 'Unknown month';
+          const date = new Date(key + '-01T12:00:00');
+          return date.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+        }
+
+        function renderHistory() {
+          const picker = $('historyMonth');
+          const currentMonth = new Date().toISOString().slice(0, 7);
+          const previous = picker.value;
+          const months = Array.from(new Set([
+            currentMonth,
+            ...transactions.map(t => monthKey(t.date)).filter(Boolean)
+          ])).sort().reverse();
+
+          picker.innerHTML = months.map(m =>
+            '<option value="' + m + '">' + esc(monthLabel(m)) + '</option>'
+          ).join('');
+          picker.value = months.includes(previous) ? previous : currentMonth;
+
+          const selectedMonth = picker.value;
+          const entries = transactions
+            .filter(t => monthKey(t.date) === selectedMonth)
+            .sort((a, b) => b.date.localeCompare(a.date) || b.created - a.created);
+          const expenses = entries.filter(t => t.type === 'expense');
+          const incomes = entries.filter(t => t.type === 'income');
+          const totalSpent = expenses.reduce((sum, t) => sum + Number(t.amount || 0), 0);
+          const totalIncome = incomes.reduce((sum, t) => sum + Number(t.amount || 0), 0);
+          const remaining = budget - totalSpent;
+          const usage = budget > 0 ? totalSpent / budget * 100 : (totalSpent > 0 ? 100 : 0);
+
+          $('historySummary').innerHTML = [
+            '<div class="history-metric spent"><span>Total expenses</span><strong>' + money(totalSpent) + '</strong></div>',
+            '<div class="history-metric income"><span>Total income</span><strong>' + money(totalIncome) + '</strong></div>',
+            '<div class="history-metric"><span>Budget</span><strong>' + money(budget) + '</strong></div>',
+            '<div class="history-metric ' + (remaining < 0 ? 'over' : '') + '"><span>' + (remaining < 0 ? 'Over budget' : 'Budget left') + '</span><strong>' + money(Math.abs(remaining)) + '</strong></div>'
+          ].join('');
+
+          $('historyUsageLabel').textContent = money(totalSpent) + ' of ' + money(budget);
+          $('historyProgress').style.width = Math.min(100, usage) + '%';
+          $('historyProgress').classList.toggle('over-budget', totalSpent > budget);
+          $('historyBudgetCaption').textContent = totalSpent > budget
+            ? money(totalSpent - budget) + ' over the monthly limit.'
+            : money(Math.max(0, remaining)) + ' remaining in ' + monthLabel(selectedMonth) + '.';
+
+          const categoryTotals = {};
+          expenses.forEach(t => {
+            const category = t.category || 'Other';
+            categoryTotals[category] = (categoryTotals[category] || 0) + Number(t.amount || 0);
+          });
+          const categories = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]);
+          $('historyCategories').innerHTML = categories.length
+            ? categories.map(([category, amount]) => {
+                const pct = totalSpent > 0 ? amount / totalSpent * 100 : 0;
+                return '<div class="history-category"><div class="history-category-label"><span>' +
+                  esc(category) + '</span><strong>' + money(amount) +
+                  '</strong></div><div class="history-category-track"><span style="width:' +
+                  pct + '%"></span></div></div>';
+              }).join('')
+            : '<div class="history-empty">No expense categories for ' + esc(monthLabel(selectedMonth)) + ' yet.</div>';
+
+          $('historyTransactionCount').textContent = entries.length + (entries.length === 1 ? ' ENTRY' : ' ENTRIES');
+          $('historyTransactions').innerHTML = entries.length
+            ? entries.map(t => '<div class="history-entry"><div class="history-entry-icon">' +
+                (icons[t.category] || '📌') + '</div><div class="history-entry-main"><strong>' +
+                esc(t.title) + '</strong><small>' + esc(t.date) + ' · ' +
+                esc(t.category || 'Other') + '</small></div><span class="history-entry-amount ' +
+                (t.type === 'income' ? 'income' : '') + '">' +
+                (t.type === 'income' ? '+' : '−') + money(t.amount) + '</span></div>'
+              ).join('')
+            : '<div class="history-empty">Nothing recorded this month yet.<br>Add a transaction to build your monthly report.</div>';
+        }
+
+        function openHistory() {
+          renderHistory();
+          $('historyModal').hidden = false;
+          document.body.style.overflow = 'hidden';
+          $('historyClose').focus();
+        }
+
+        function closeHistory() {
+          $('historyModal').hidden = true;
+          document.body.style.overflow = '';
+          $('historyButton').focus();
+        }
+
+        $('historyButton').onclick = openHistory;
+        $('historyClose').onclick = closeHistory;
+        $('historyDone').onclick = closeHistory;
+        $('ledgerSheetButton').onclick = openLedgerSheet;
+        $('ledgerSheetClose').onclick = closeLedgerSheet;
+        $('ledgerSheetDone').onclick = closeLedgerSheet;
+        $('ledgerExportExcel').onclick = () => $('exportExcel').click();
+        $('ledgerSheetModal').onclick = event => {
+          if (event.target === $('ledgerSheetModal')) closeLedgerSheet();
+        };
+        document.addEventListener('keydown', event => {
+          if (event.key === 'Escape' && !$('ledgerSheetModal').hidden) closeLedgerSheet();
+        });
+        $('historyMonth').onchange = renderHistory;
+        $('historyModal').onclick = event => {
+          if (event.target === $('historyModal')) closeHistory();
+        };
+        document.addEventListener('keydown', event => {
+          if (event.key === 'Escape' && !$('historyModal').hidden) closeHistory();
+        });
+
+        renderHistory();
+        render();
+      </script>
+    </div>
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>
