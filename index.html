@@ -115,7 +115,7 @@
           background: #100d0a;
         }
         button:hover {
-          filter: brightness(1.08);
+          border-color: var(--accent);
         }
         .hero {
           display: grid;
@@ -585,6 +585,52 @@
           text-align: center;
           line-height: 1.7;
         }
+
+        /* Performance pass: keep visual state changes consistent and short. */
+        html { scroll-behavior: smooth; }
+        button, a, .card, .tx, .pill {
+          transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+          transition-duration: 180ms;
+          transition-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+        }
+        button:hover, a:hover { transform: translateY(-1px); }
+        button:active, a:active { transform: translateY(0); }
+        button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
+          outline: 2px solid #f0d28a;
+          outline-offset: 2px;
+        }
+        .about-link {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 40px;
+          padding: 9px 12px;
+          border: 1px solid #665331;
+          border-radius: 10px;
+          background: #211b12;
+          color: #f0d28a;
+          font-weight: 700;
+          text-decoration: none;
+          white-space: nowrap;
+        }
+        .about-link:hover { border-color: var(--accent); background: #2b2418; }
+        #about { scroll-margin-top: 18px; }
+        .about-card { margin-top: 16px; }
+        .about-intro { max-width: 760px; margin: 0 0 18px; color: #e3d9c8; line-height: 1.75; }
+        .about-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+        .about-point { min-width: 0; padding: 16px; border: 1px solid #403325; border-radius: 14px; background: linear-gradient(145deg, #211a12, #12100d); }
+        .about-symbol { display: grid; place-items: center; width: 36px; height: 36px; margin-bottom: 12px; border: 1px solid #6c5530; border-radius: 11px; background: #312617; color: #f0d28a; font-size: 21px; }
+        .about-point h3 { margin: 0 0 8px; font-size: 14px; }
+        .about-point p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.65; }
+        .about-beta-note { margin-top: 14px; padding: 14px 16px; border: 1px solid #59472c; border-radius: 12px; background: #241d12; }
+        .about-beta-note strong { color: #f2d69a; }
+        .about-beta-note p { margin: 5px 0 0; color: #d3c2a5; font-size: 12px; line-height: 1.7; }
+        @media (prefers-reduced-motion: reduce) {
+          html { scroll-behavior: auto; }
+          button, a, .card, .tx, .pill { transition-duration: 0ms; }
+          button:hover, a:hover { transform: none; }
+        }
+
         @media (max-width: 760px) {
           .hero,
           .grid {
@@ -597,6 +643,9 @@
             padding: 16px;
           }
           .formgrid {
+            grid-template-columns: 1fr;
+          }
+          .about-grid {
             grid-template-columns: 1fr;
           }
           .filters {
@@ -622,7 +671,7 @@
               <option value="USD">$ USD</option>
               <option value="EUR">€ EUR</option>
               <option value="GBP">£ GBP</option></select
-            ><button id="historyButton" type="button" aria-haspopup="dialog">Monthly history ↗</button><button id="ledgerSheetButton" type="button" aria-haspopup="dialog">Ledger sheet ↗</button><button id="exportExcel" type="button">Export Excel ↗</button><button id="export" type="button">Export CSV ↓</button><span id="exportStatus" class="muted" role="status" aria-live="polite"></span>
+            ><button id="historyButton" type="button" aria-haspopup="dialog">Monthly history ↗</button><button id="ledgerSheetButton" type="button" aria-haspopup="dialog">Ledger sheet ↗</button><button id="exportExcel" type="button">Export Excel ↗</button><button id="export" type="button">Export CSV ↓</button><a class="about-link" href="#about">About Pocketwise</a><span id="exportStatus" class="muted" role="status" aria-live="polite"></span>
           </div>
         </header>
         <div class="notice">
@@ -741,6 +790,38 @@
               <span class="muted" id="showing">0 transactions</span
               ><button id="clearAll" class="del">Clear all data</button>
             </div>
+          </div>
+        </section>
+
+        <section id="about" class="about-card card" aria-labelledby="aboutTitle">
+          <div class="sectionhead">
+            <div>
+              <div class="eyebrow">ABOUT POCKETWISE</div>
+              <h2 id="aboutTitle">Money clarity, one step at a time.</h2>
+            </div>
+            <span class="pill">Beta</span>
+          </div>
+          <p class="about-intro">Pocketwise is a simple, mobile-friendly expense tracker designed to help you understand everyday spending, build good money habits, and review your progress without a complicated setup.</p>
+          <div class="about-grid">
+            <article class="about-point">
+              <span class="about-symbol" aria-hidden="true">↗</span>
+              <h3>Track clearly</h3>
+              <p>Record income and expenses with a date, category, amount, description, and note. Review monthly totals and budget progress in one place.</p>
+            </article>
+            <article class="about-point">
+              <span class="about-symbol" aria-hidden="true">▤</span>
+              <h3>Keep useful records</h3>
+              <p>Explore transaction history and a ledger view, then export CSV or Excel snapshots for your own records.</p>
+            </article>
+            <article class="about-point">
+              <span class="about-symbol" aria-hidden="true">◇</span>
+              <h3>Designed for daily use</h3>
+              <p>A responsive layout adapts to desktop and mobile screens, with short, consistent interaction transitions targeting 180 milliseconds.</p>
+            </article>
+          </div>
+          <div class="about-beta-note">
+            <strong>Beta transparency</strong>
+            <p>This website version stores records in the current browser on this device. It does not provide account login, cloud sync, bank connectivity, or real payment processing. Export a backup before clearing browser data.</p>
           </div>
         </section>
         <p class="muted" style="text-align: center; margin-top: 24px">
