@@ -6,7 +6,6 @@ on:
     paths:
       - "index.html"
       - "package.json"
-      - "package-lock.json"
       - "src/**"
       - "postcss.config.js"
       - "tailwind.config.js"
@@ -22,7 +21,7 @@ permissions:
 
 concurrency:
   group: "pages"
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -38,6 +37,8 @@ jobs:
         run: npm install
       - name: Build Pocketwise
         run: npm run build
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
       - name: Upload production site
         uses: actions/upload-pages-artifact@v5
         with:
